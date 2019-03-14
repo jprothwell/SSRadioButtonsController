@@ -16,7 +16,7 @@ import UIKit
     is called with a nil.
     
     */
-    @objc func didSelectButton(selectedButton: UIButton?)
+    @objc func radioButtonContrller(_ radioButtonContrller: SSRadioButtonsController,didSelected button: UIButton,andSelected index: Int)
 }
 
 class SSRadioButtonsController : NSObject
@@ -32,13 +32,18 @@ class SSRadioButtonsController : NSObject
 
         - parameter buttons: Buttons that should behave as Radio Buttons
     */
-    init(buttons: UIButton...) {
+    convenience init(buttons: UIButton...) {
+        self.init(buttons: buttons)
+    }
+    
+    init(buttons: [UIButton]) {
         super.init()
         for aButton in buttons {
             aButton.addTarget(self, action: #selector(SSRadioButtonsController.pressed(_:)), for: UIControlEvents.touchUpInside)
         }
         self.buttonsArray = buttons
     }
+    
     /**
         Add a UIButton to Controller
 
@@ -78,29 +83,50 @@ class SSRadioButtonsController : NSObject
     }
 
     func pressed(_ sender: UIButton) {
-        var currentSelectedButton: UIButton? = nil
-        if(sender.isSelected) {
+        selectAtButton(sender)
+    }
+    
+    func selectAtIndex(_ index: Int) {
+        if buttonsArray.indices.contains(index) {
+            selectAtButton(buttonsArray[index])
+        }
+    }
+    
+    func selectAtButton(_ button: UIButton) {
+        guard let index = buttonsArray.firstIndex(of: button) else {
+            return
+        }
+
+        if(button.isSelected) {
             if shouldLetDeSelect {
-                sender.isSelected = false
-                currentSelectedButton = nil
+                button.isSelected = false
+                delegate?.radioButtonContrller(self, didSelected: button, andSelected: index)
+            }
+            else{
+                
             }
         } else {
-            for aButton in buttonsArray {
-                aButton.isSelected = false
-            }
-            sender.isSelected = true
-            currentSelectedButton = sender
+            buttonsArray.filter({$0 != button}).forEach({
+                if $0.isSelected {
+                    $0.isSelected = false
+                }
+            })
+            button.isSelected = true
+            delegate?.radioButtonContrller(self, didSelected: button, andSelected: index)
         }
-        delegate?.didSelectButton(selectedButton: currentSelectedButton)
     }
+    
     /**
         Get the currently selected button.
     
         - returns: Currenlty selected button.
     */
     func selectedButton() -> UIButton? {
-        guard let index = buttonsArray.index(where: { button in button.isSelected }) else { return nil }
-        
-        return buttonsArray[index]
+        guard let first = selectedIndex() else  { return nil }
+        return buttonsArray[first]
+    }
+    
+    func selectedIndex() -> Int? {
+        return buttonsArray.firstIndex(where: {$0.isSelected})
     }
 }

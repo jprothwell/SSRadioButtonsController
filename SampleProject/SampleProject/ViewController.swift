@@ -21,14 +21,17 @@ class ViewController: UIViewController, SSRadioButtonControllerDelegate {
         
         radioButtonController = SSRadioButtonsController(buttons: button1, button2, button3)
         radioButtonController!.delegate = self
-        radioButtonController!.shouldLetDeSelect = true
+        //radioButtonController!.shouldLetDeSelect = true
 
         // Do any additional setup after loading the view, typically from a nib.
+        
+        radioButtonController?.selectAtIndex(4)
     }
 
-    func didSelectButton(selectedButton: UIButton?)
-    {
-        NSLog(" \(selectedButton)" )
+    func radioButtonContrller(_ radioButtonContrller: SSRadioButtonsController, didSelected button: UIButton, andSelected index: Int) {
+        print("\(radioButtonContrller)")
+        print("\(button)")
+        print("\(index)")
     }
     
     override func didReceiveMemoryWarning() {
